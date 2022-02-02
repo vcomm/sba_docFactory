@@ -1,0 +1,65 @@
+{
+    "id": "tst",
+    "prj": "prj",
+    "states": {
+        "init": {
+            "key": "init",
+            "transitions": {
+                "init=>[clkNewDoc/Initialize]=>newDoc": {
+                    "nextstatename": "newDoc",
+                    "input": "clkNewDoc",
+                    "output": "Initialize"
+                }
+            }
+        },
+        "final": {
+            "key": "final",
+            "transitions": {}
+        },
+        "newDoc": {
+            "key": "newDoc",
+            "transitions": {
+                "newDoc=>[clkNewField/KeepNameID]=>newField": {
+                    "nextstatename": "newField",
+                    "input": "clkNewField",
+                    "output": "KeepNameID"
+                },
+                "newDoc=>[clkNewDocID/newDocIDRecognition]=>newDoc": {
+                    "nextstatename": "newDoc",
+                    "input": "clkNewDocID",
+                    "output": "newDocIDRecognition"
+                },
+                "newDoc=>[clkNewDocName/newDocNameRecognition]=>newDoc": {
+                    "nextstatename": "newDoc",
+                    "input": "clkNewDocName",
+                    "output": "newDocNameRecognition"
+                }
+            }
+        },
+        "newField": {
+            "key": "newField",
+            "transitions": {
+                "newField=>[clkNewField/KeepField[Key-Data]]=>newField": {
+                    "nextstatename": "newField",
+                    "input": "clkNewField",
+                    "output": "KeepField[Key-Data]"
+                },
+                "newField=>[clkSaveDoc/KeepDocPattern]=>final": {
+                    "nextstatename": "init",
+                    "input": "clkSaveDoc",
+                    "output": "KeepDocPattern"
+                },
+                "newField=>[clkNewFieldKey/newFieldKeyRecognition]=>newField": {
+                    "nextstatename": "newField",
+                    "input": "clkNewFieldKey",
+                    "output": "newFieldKeyRecognition"
+                },
+                "newField=>[clkNewFieldValue/newFieldValueRecognition]=>newField": {
+                    "nextstatename": "newField",
+                    "input": "clkNewFieldValue",
+                    "output": "newFieldValueRecognition"
+                }
+            }
+        }
+    }
+}
