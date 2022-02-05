@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import {mapState, mapGetters, mapActions, mapMutations} from 'vuex'
 import { createWorker, PSM, OEM  } from 'tesseract.js';
 import Logic from '../mixins/logic'
 
@@ -70,6 +71,11 @@ export default {
   },
   created() {
     this.logicInitial()
+  },
+  computed: {
+    ...mapGetters({
+      jsonPattern: 'doc/jsonPattern'
+    })
   },
   mounted() {
     this.container = this.$refs.factoryContainer
@@ -125,6 +131,19 @@ export default {
     });
   },
   methods: {
+    ...mapMutations({
+      setID: 'doc/setID', 
+      setName: 'doc/setName',
+      setFieldRecordKey: 'doc/setFieldRecordKey',
+      setFieldRecordValue: 'doc/setFieldRecordValue'
+    }),
+    ...mapActions({
+      initNewDoc: 'doc/initNewDoc',
+      newFieldDB: 'doc/newFieldDB',
+      newFieldKey: 'doc/newFieldKey',
+      newFieldValue: 'doc/newFieldValue'
+    }),
+
     logicInitial() {
         let fnKey = 'newDocUI'
         this.cntx.addAtom(fnKey, (cntx) => {
@@ -132,9 +151,7 @@ export default {
             cntx.component.$refs.newdocname.style.visibility = 'visible'    
             cntx.component.$refs.newdocid.style.visibility = 'visible'   
             cntx.component.count++
-            cntx.component.$store.state.doc.name = ''
-            cntx.component.$store.state.doc.id = ''
-            cntx.component.$store.state.doc.fields = []
+            this.initNewDoc()
         })
         this.smng.addToChain('Initialize',fnKey)
 
@@ -142,8 +159,7 @@ export default {
         this.cntx.addAtom(fnKey, async (cntx) => {
             cntx.component.$refs.newdocid.style.visibility = 'hidden'
             const result = await cntx.component.imgRecognition()    
-            cntx.component.$store.state.doc.name = result.text
-            cntx.component.$store.state.doc.namextract = result.extract
+            this.setName({name: result.text, extract: result.extract})
             cntx.component.$refs.newdocid.style.visibility = 'visible'
             cntx.component.count++ 
             if (cntx.component.count >= 3) {
@@ -156,8 +172,7 @@ export default {
         this.cntx.addAtom(fnKey, async (cntx) => {
             cntx.component.$refs.newdocname.style.visibility = 'hidden'  
             const result = await cntx.component.imgRecognition()  
-            cntx.component.$store.state.doc.id = result.text
-            cntx.component.$store.state.doc.idextract = result.extract
+            this.setID({id: result.text, extract: result.extract})
             cntx.component.$refs.newdocname.style.visibility = 'visible'  
             cntx.component.count++   
             if (cntx.component.count >= 3) {
@@ -168,16 +183,7 @@ export default {
 
         fnKey = 'newFieldDB'
         this.cntx.addAtom(fnKey, (cntx) => {
-            //cntx.component.$store.state.doc.fields.push({ ...cntx.component.$store.state.doc.pattern })   
-            cntx.component.$store.state.doc.fields.push({ 
-                field: {
-                    extract: { left: 0, top: 0, width: 0, height: 0 }, key: ''
-                },  
-                data: {
-                    extract: { left: 0, top: 0, width: 0, height: 0 }, value: ''
-                }
-            })
-
+            this.newFieldDB()
             //cntx.component.$refs.newdoc.style.display = 'none'  
             //cntx.component.$refs.newdocname.style.display = 'none'    
             //cntx.component.$refs.newdocid.style.display = 'none'  
@@ -195,11 +201,8 @@ export default {
         fnKey = 'newFieldKey'
         this.cntx.addAtom(fnKey, async (cntx) => {
             cntx.component.$refs.newfieldvalue.style.visibility = 'hidden'
-            const index = cntx.component.$store.state.doc.fields.length - 1
-            const record = cntx.component.$store.state.doc.fields[index]
-            const result = await cntx.component.imgRecognition()  
-            record.field.key = result.text
-            record.field.extract = result.extract
+            const result = await cntx.component.imgRecognition()
+            this.newFieldKey({key: result.text, extract: result.extract})
             cntx.component.$refs.newfieldvalue.style.visibility = 'visible'
             cntx.component.count++   
             if (cntx.component.count >= 2) {
@@ -215,11 +218,8 @@ export default {
         fnKey = 'newFieldValue'
         this.cntx.addAtom(fnKey, async (cntx) => {
             cntx.component.$refs.newfieldkey.style.visibility = 'hidden'
-            const index = cntx.component.$store.state.doc.fields.length - 1
-            const record = cntx.component.$store.state.doc.fields[index]
-            const result =  await cntx.component.imgRecognition()  
-            record.data.value = result.text
-            record.data.extract = result.extract
+            const result =  await cntx.component.imgRecognition() 
+            this.newFieldValue({value: result.text, extract: result.extract})
             cntx.component.$refs.newfieldkey.style.visibility = 'visible'
             cntx.component.count++   
             if (cntx.component.count >= 2) {
@@ -240,7 +240,7 @@ export default {
             cntx.component.$refs.newdoc.style.visibility = 'visible' 
             //cntx.component.$refs.newdocname.style.display = 'block'    
             //cntx.component.$refs.newdocid.style.display = 'block'  
-            console.log(`Save Doc Pattern`, cntx.component.$store.state.doc)
+            console.log(`Save Doc Pattern`, cntx.component.jsonPattern)
         })
         this.smng.addToChain('KeepDocPattern',fnKey)
 
