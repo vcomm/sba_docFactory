@@ -34,7 +34,8 @@
       <tbody>
         <tr>
           <div class="image">
-            <img class="imagemap" ref="imagemap" src="../assets/Tax-Invoice.jpeg" style="margin: 1px;">
+            <!--<img class="imagemap" ref="imagemap" src="../assets/Tax-Invoice.jpeg" style="margin: 1px;">-->
+            <img class="imagemap" ref="imagemap" :src="getUrlParam('urlimg')" style="margin: 1px;">
           </div> 
           <canvas class="canvas" ref="drawimage"/>
         </tr>
@@ -143,6 +144,11 @@ export default {
       newFieldKey: 'doc/newFieldKey',
       newFieldValue: 'doc/newFieldValue'
     }),
+
+    getUrlParam(paramName){
+      const parameters = new URLSearchParams(window.location.search);
+      return parameters.get(paramName);
+    },
 
     logicInitial() {
         let fnKey = 'newDocUI'
